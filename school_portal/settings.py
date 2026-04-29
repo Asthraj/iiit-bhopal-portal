@@ -25,8 +25,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'cloudinary',                  
-    'cloudinary_storage', 
     'core',
 ]
 
@@ -96,22 +94,8 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 # ── MEDIA FILES ───────────────────────────────────────────────────────────────
-import cloudinary
-import cloudinary.uploader
-import cloudinary.api
-
-CLOUDINARY_URL = 'cloudinary://188665943915661:-RkL9yp7caR2Cvmzd8mvbHVGGko@diwkj5d2h'
-
-cloudinary.config(
-    cloud_name = 'diwkj5d2h',
-    api_key = '188665943915661',
-    api_secret = '-RkL9yp7caR2Cvmzd8mvbHVGGko',
-    secure = True
-)
-
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 MEDIA_URL = '/media/'
-
+MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_URL = '/login/'
