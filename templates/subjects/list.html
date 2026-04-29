@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}Subjects — IIIT Bhopal Portal{% endblock %}
+{% block content %}
+<div class="page-header flex-between">
+  <div>
+    <h1 class="page-title">Subjects</h1>
+    <p class="page-subtitle">{% if profile.is_teacher %}Subjects you teach{% else %}Your enrolled subjects{% endif %}</p>
+  </div>
+  {% if profile.is_teacher %}<a href="{% url 'subject_create' %}" class="btn btn-primary">+ New Subject</a>{% endif %}
+</div>
+
+<!-- Branch filter tabs -->
+<div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1.5rem;">
+  <span style="font-size:0.85rem;color:var(--ink-light);align-self:center;font-weight:600;">Filter:</span>
+  <a href="?branch=" class="btn btn-sm {% if not request.GET.branch %}btn-primary{% else %}btn-outline{% endif %}">All</a>
+  <a href="?branch=CS"  class="btn btn-sm {% if request.GET.branch == 'CS' %}btn-primary{% else %}btn-outline{% endif %}">💻 CS</a>
+  <a href="?branch=IT"  class="btn btn-sm {% if request.GET.branch == 'IT' %}btn-primary{% else %}btn-outline{% endif %}">🌐 IT</a>
+  <a href="?branch=ECE" class="btn btn-sm {% if request.GET.branch == 'ECE' %}btn-primary{% else %}btn-outline{% endif %}">📡 ECE</a>
+</div>
+
+<div class="grid-3">
+{% for s in subjects %}
+{% if not request.GET.branch or s.branch == request.GET.branch %}
+<a href="{% url 'subject_detail' s.pk %}" style="text-decoration:none;">
+<div class="card" style="cursor:pointer;transition:transform 0.15s,box-shadow 0.15s;" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,0.12)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.75rem;">
+    <div style="width:40px;height:40px;background:var(--accent2);border-radius:10px;display:flex;align-items:center;justify-content:center;color:white;font-size:1.2rem;">
+      {% if s.branch == 'CS' %}💻{% elif s.branch == 'IT' %}🌐{% elif s.branch == 'ECE' %}📡{% else %}📚{% endif %}
+    </div>
+    <span class="badge badge-branch-{{ s.branch }}">{{ s.branch }}</span>
+  </div>
+  <h3 style="font-family:'DM Serif Display',serif;font-size:1.1rem;margin-bottom:0.4rem;">{{ s.name }}</h3>
+  <div class="text-muted text-small">
+    {% if profile.is_teacher %}{{ s.students.count }} student{{ s.students.count|pluralize }}{% else %}by {{ s.teacher.get_full_name|default:s.teacher.username }}{% endif %}
+  </div>
+  <div class="flex-gap mt-2">
+    <span class="badge badge-subject">{{ s.assignments.count }} assignments</span>
+    <span class="badge badge-student">{{ s.notes.count }} notes</span>
+  </div>
+</div>
+</a>
+{% endif %}
+{% empty %}
+<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">📚</div>
+{% if profile.is_teacher %}No subjects yet. <a href="{% url 'subject_create' %}">Create one</a>{% else %}Not enrolled in any subjects yet.{% endif %}</div>
+{% endfor %}
+</div>
+{% endblock %}

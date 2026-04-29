@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Grade Submission{% endblock %}
+{% block content %}
+<div style="max-width:520px;margin:0 auto;">
+  <div class="page-header">
+    <h1 class="page-title">Grade Submission</h1>
+    <p class="page-subtitle">{{ submission.student.get_full_name|default:submission.student.username }} — {{ submission.assignment.title }}</p>
+  </div>
+  <div class="card mb-2">
+    <p><strong>Submitted:</strong> {{ submission.submitted_at|date:"M d, Y H:i" }}</p>
+    {% if submission.file %}<div class="mt-1"><a href="{{ submission.file.url }}" target="_blank" class="btn btn-outline btn-sm">📎 View Submission File</a></div>{% endif %}
+  </div>
+  <div class="card">
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-row">
+        <div class="form-group"><label>Grade (e.g. A, B+, C)</label>{{ form.grade }}</div>
+        <div class="form-group"><label>Marks (out of {{ submission.assignment.max_marks }})</label>{{ form.marks_obtained }}</div>
+      </div>
+      <div class="form-group"><label>Feedback / Remarks</label>{{ form.remarks }}</div>
+      <div class="flex-gap">
+        <button type="submit" class="btn btn-success">Save Grade</button>
+        <a href="{% url 'assignment_detail' submission.assignment.pk %}" class="btn btn-outline">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

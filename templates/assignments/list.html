@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}Assignments{% endblock %}
+{% block content %}
+<div class="page-header flex-between">
+  <div><h1 class="page-title">Assignments</h1></div>
+  {% if profile.is_teacher %}<a href="{% url 'assignment_create' %}" class="btn btn-primary">+ New Assignment</a>{% endif %}
+</div>
+<div class="card">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Title</th><th>Subject</th><th>Due Date</th><th>Max Marks</th>
+      {% if profile.is_teacher %}<th>Submissions</th>{% else %}<th>Status</th>{% endif %}
+      <th>Action</th></tr></thead>
+      <tbody>
+      {% for a in assignments %}
+      <tr>
+        <td><a href="{% url 'assignment_detail' a.pk %}" style="font-weight:500;color:var(--ink);">{{ a.title }}</a></td>
+        <td><span class="badge badge-subject">{{ a.subject.name }}</span></td>
+        <td>{{ a.due_date|date:"M d, Y H:i" }}</td>
+        <td>{{ a.max_marks }}</td>
+        {% if profile.is_teacher %}
+          <td>{{ a.submissions.count }}</td>
+        {% else %}
+          <td>{% if a.my_submission %}{% if a.my_submission.grade %}<span class="badge badge-graded">Graded: {{ a.my_submission.grade }}</span>{% else %}<span class="badge badge-pending">Submitted</span>{% endif %}{% else %}<span class="badge badge-overdue">Not Submitted</span>{% endif %}</td>
+        {% endif %}
+        <td>
+          <a href="{% url 'assignment_detail' a.pk %}" class="btn btn-sm btn-outline">View</a>
+          {% if not profile.is_teacher and not a.my_submission %}<a href="{% url 'submit_assignment' a.pk %}" class="btn btn-sm btn-primary">Submit</a>{% endif %}
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--ink-light);">No assignments found.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard — IIIT Bhopal Portal{% endblock %}
+{% block content %}
+<div class="page-header flex-between">
+  <div>
+    <h1 class="page-title">Hello, {{ user.first_name|default:user.username }} 👋</h1>
+    <p class="page-subtitle">
+      <span class="badge {% if profile.is_teacher %}badge-teacher{% else %}badge-student{% endif %}">
+        {{ profile.role|title }}
+      </span>
+      &nbsp;
+      <span class="badge badge-branch-{{ profile.branch }}">{{ profile.get_branch_display }}</span>
+    </p>
+  </div>
+  {% if profile.is_teacher %}
+  <div class="flex-gap">
+    <a href="{% url 'assignment_create' %}" class="btn btn-primary">+ New Assignment</a>
+    <a href="{% url 'note_create' %}" class="btn btn-secondary">+ Upload Note</a>
+    <a href="{% url 'subject_create' %}" class="btn btn-outline">+ Subject</a>
+  </div>
+  {% endif %}
+</div>
+
+{% if profile.is_teacher %}
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-value">{{ subjects.count }}</div>
+    <div class="stat-label">Subjects</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value">{{ assignments.count }}</div>
+    <div class="stat-label">Assignments</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value">{{ total_submissions }}</div>
+    <div class="stat-label">Total Submissions</div>
+  </div>
+  <div class="stat-card" style="border-left: 3px solid var(--gold);">
+    <div class="stat-value" style="color:var(--gold);">{{ pending_grading }}</div>
+    <div class="stat-label">Pending Grading</div>
+  </div>
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <div class="card-header flex-between">
+      <h3 class="card-title">Recent Assignments</h3>
+      <a href="{% url 'assignment_list' %}" class="btn btn-sm btn-outline">View All</a>
+    </div>
+    {% for a in assignments %}
+    <div style="padding:0.75rem 0;border-bottom:1px solid var(--border);" class="flex-between">
+      <div>
+        <a href="{% url 'assignment_detail' a.pk %}" style="font-weight:500;color:var(--ink);">{{ a.title }}</a>
+        <div class="text-muted text-small mt-1">{{ a.subject.name }} · Due {{ a.due_date|date:"M d, Y" }}</div>
+      </div>
+      <span class="badge badge-subject">{{ a.submissions.count }} sub</span>
+    </div>
+    {% empty %}<div class="empty-state"><div class="empty-icon">📋</div>No assignments yet</div>{% endfor %}
+  </div>
+
+  <div class="card">
+    <div class="card-header flex-between">
+      <h3 class="card-title">Recent Notes</h3>
+      <a href="{% url 'note_list' %}" class="btn btn-sm btn-outline">View All</a>
+    </div>
+    {% for n in notes %}
+    <div style="padding:0.75rem 0;border-bottom:1px solid var(--border);">
+      <a href="{% url 'note_detail' n.pk %}" style="font-weight:500;color:var(--ink);">{{ n.title }}</a>
+      <div class="text-muted text-small mt-1">{{ n.subject.name }} · {{ n.created_at|date:"M d, Y" }}</div>
+    </div>
+    {% empty %}<div class="empty-state"><div class="empty-icon">📝</div>No notes yet</div>{% endfor %}
+  </div>
+</div>
+
+{% else %}
+<!-- STUDENT DASHBOARD -->
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-value">{{ subjects.count }}</div>
+    <div class="stat-label">Enrolled Subjects</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value">{{ assignments.count }}</div>
+    <div class="stat-label">Total Assignments</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value">{{ my_submissions.count }}</div>
+    <div class="stat-label">Submitted</div>
+  </div>
+  <div class="stat-card" style="border-left:3px solid var(--accent);">
+    <div class="stat-value" style="color:var(--accent);">{{ pending_assignments|length }}</div>
+    <div class="stat-label">Pending Submission</div>
+  </div>
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <div class="card-header flex-between">
+      <h3 class="card-title">Pending Assignments</h3>
+      <a href="{% url 'assignment_list' %}" class="btn btn-sm btn-outline">View All</a>
+    </div>
+    {% for a in pending_assignments|slice:":5" %}
+    <div style="padding:0.75rem 0;border-bottom:1px solid var(--border);" class="flex-between">
+      <div>
+        <a href="{% url 'assignment_detail' a.pk %}" style="font-weight:500;color:var(--ink);">{{ a.title }}</a>
+        <div class="text-muted text-small mt-1">{{ a.subject.name }} · Due {{ a.due_date|date:"M d, Y" }}</div>
+      </div>
+      <a href="{% url 'submit_assignment' a.pk %}" class="btn btn-sm btn-primary">Submit</a>
+    </div>
+    {% empty %}<div class="empty-state"><div class="empty-icon">🎉</div>All assignments submitted!</div>{% endfor %}
+  </div>
+
+  <div class="card">
+    <div class="card-header flex-between">
+      <h3 class="card-title">My Submissions</h3>
+    </div>
+    {% for s in my_submissions %}
+    <div style="padding:0.75rem 0;border-bottom:1px solid var(--border);" class="flex-between">
+      <div>
+        <span style="font-weight:500;">{{ s.assignment.title }}</span>
+        <div class="text-muted text-small mt-1">{{ s.submitted_at|date:"M d, Y H:i" }}</div>
+      </div>
+      {% if s.grade %}
+        <span class="badge badge-graded">{{ s.grade }} ({{ s.marks_obtained }}/{{ s.assignment.max_marks }})</span>
+      {% else %}
+        <span class="badge badge-pending">Pending</span>
+      {% endif %}
+    </div>
+    {% empty %}<div class="empty-state"><div class="empty-icon">📤</div>No submissions yet</div>{% endfor %}
+  </div>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}Register — IIIT Bhopal Portal{% endblock %}
+{% block content %}
+<div style="max-width:540px;margin:3rem auto;">
+  <div style="text-align:center;margin-bottom:2rem;">
+    <h1 style="font-family:'DM Serif Display',serif;font-size:2.2rem;">Create Account</h1>
+    <p style="color:var(--ink-light);margin-top:0.5rem;">Join the IIIT Bhopal Academic Portal</p>
+  </div>
+  <div class="card">
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-row">
+        <div class="form-group">
+          <label>First Name</label>{{ form.first_name }}
+          {% if form.first_name.errors %}<small style="color:red">{{ form.first_name.errors.0 }}</small>{% endif %}
+        </div>
+        <div class="form-group">
+          <label>Last Name</label>{{ form.last_name }}
+          {% if form.last_name.errors %}<small style="color:red">{{ form.last_name.errors.0 }}</small>{% endif %}
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Username</label>{{ form.username }}
+        {% if form.username.errors %}<small style="color:red">{{ form.username.errors.0 }}</small>{% endif %}
+      </div>
+      <div class="form-group">
+        <label>Email</label>{{ form.email }}
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>I am a</label>{{ form.role }}
+        </div>
+        <div class="form-group">
+          <label>Branch</label>{{ form.branch }}
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Password</label>{{ form.password1 }}
+          {% if form.password1.errors %}<small style="color:red">{{ form.password1.errors.0 }}</small>{% endif %}
+        </div>
+        <div class="form-group">
+          <label>Confirm Password</label>{{ form.password2 }}
+          {% if form.password2.errors %}<small style="color:red">{{ form.password2.errors.0 }}</small>{% endif %}
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">Register</button>
+    </form>
+    <p style="text-align:center;margin-top:1.25rem;color:var(--ink-light);font-size:0.9rem;">
+      Already have an account? <a href="{% url 'login' %}">Sign in</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

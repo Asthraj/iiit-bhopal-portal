@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}Login — IIIT Bhopal Portal{% endblock %}
+{% block content %}
+<div style="max-width:440px;margin:3rem auto;">
+  <div style="text-align:center;margin-bottom:2rem;">
+    <h1 style="font-family:'DM Serif Display',serif;font-size:2.2rem;color:var(--ink);">Welcome Back</h1>
+    <p style="color:var(--ink-light);margin-top:0.5rem;">Sign in to the IIIT Bhopal Academic Portal</p>
+  </div>
+  <div class="card">
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-group">
+        <label for="id_username">Username</label>
+        {{ form.username }}
+      </div>
+      <div class="form-group">
+        <label for="id_password">Password</label>
+        {{ form.password }}
+      </div>
+      {% if form.errors %}
+        <div class="alert alert-error">Invalid username or password.</div>
+      {% endif %}
+      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">Sign In</button>
+    </form>
+    <p style="text-align:center;margin-top:1.25rem;color:var(--ink-light);font-size:0.9rem;">
+      New to the portal? <a href="{% url 'register' %}">Create an account</a>
+    </p>
+  </div>
+</div>
+{% endblock %}
