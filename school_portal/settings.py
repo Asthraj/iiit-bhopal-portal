@@ -99,8 +99,8 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 import cloudinary
 import cloudinary.uploader
 import cloudinary.api
+CLOUDINARY_URL = os.environ.get('CLOUDINARY_URL')
 
-CLOUDINARY_URL = os.environ.get('cloudinary://188665943915661:-RkL9yp7caR2Cvmzd8mvbHVGGko@diwkj5d2h')
 
 if CLOUDINARY_URL:
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
