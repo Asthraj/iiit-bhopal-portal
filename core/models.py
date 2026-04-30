@@ -100,7 +100,7 @@ class Assignment(models.Model):
     description = models.TextField()
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='assignments')
     teacher = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_assignments')
-    file = models.FileField(upload_to='assignments/', blank=True, null=True)
+    drive_link = models.URLField(blank=True, null=True, help_text="Public Google Drive link (optional)")
     due_date = models.DateTimeField()
     created_at = models.DateTimeField(auto_now_add=True)
     max_marks = models.PositiveIntegerField(default=100)
@@ -112,7 +112,7 @@ class Assignment(models.Model):
 class Submission(models.Model):
     assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE, related_name='submissions')
     student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='submissions')
-    file = models.FileField(upload_to='submissions/')
+    drive_link = models.URLField(help_text="Public Google Drive link to your submission")
     submitted_at = models.DateTimeField(auto_now_add=True)
     remarks = models.TextField(blank=True)
     grade = models.CharField(max_length=10, blank=True, null=True)
@@ -132,7 +132,7 @@ class Note(models.Model):
     content = models.TextField(blank=True)
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='notes')
     teacher = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notes')
-    file = models.FileField(upload_to='notes/', blank=True, null=True)
+    drive_link = models.URLField(blank=True, null=True, help_text="Public Google Drive link (optional)")
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

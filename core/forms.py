@@ -18,15 +18,31 @@ class RegisterForm(UserCreationForm):
         fields = ['username', 'first_name', 'last_name', 'email', 'password1', 'password2', 'role', 'branch']
 
 
+def validate_drive_link(value):
+    """Ensure the link is a Google Drive / Docs / Sheets / Slides public URL."""
+    if value and 'drive.google.com' not in value and 'docs.google.com' not in value:
+        raise forms.ValidationError(
+            "Please provide a valid Google Drive or Google Docs public link "
+            "(e.g. https://drive.google.com/file/d/...)."
+        )
+
+
 class AssignmentForm(forms.ModelForm):
     due_date = forms.DateTimeField(
         widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}),
         input_formats=['%Y-%m-%dT%H:%M']
     )
+    drive_link = forms.URLField(
+        required=False,
+        label="Google Drive Link (Optional)",
+        help_text="Paste a public Google Drive link for any reference material.",
+        widget=forms.URLInput(attrs={'placeholder': 'https://drive.google.com/file/d/...'}),
+        validators=[validate_drive_link],
+    )
 
     class Meta:
         model = Assignment
-        fields = ['title', 'description', 'subject', 'file', 'due_date', 'max_marks']
+        fields = ['title', 'description', 'subject', 'drive_link', 'due_date', 'max_marks']
 
     def __init__(self, teacher=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -35,9 +51,16 @@ class AssignmentForm(forms.ModelForm):
 
 
 class SubmissionForm(forms.ModelForm):
+    drive_link = forms.URLField(
+        label="Google Drive Link",
+        help_text="Upload your file to Google Drive, set sharing to 'Anyone with the link', then paste the link here.",
+        widget=forms.URLInput(attrs={'placeholder': 'https://drive.google.com/file/d/...'}),
+        validators=[validate_drive_link],
+    )
+
     class Meta:
         model = Submission
-        fields = ['file', 'remarks']
+        fields = ['drive_link', 'remarks']
         widgets = {'remarks': forms.Textarea(attrs={'rows': 3})}
 
 
@@ -49,9 +72,17 @@ class GradeForm(forms.ModelForm):
 
 
 class NoteForm(forms.ModelForm):
+    drive_link = forms.URLField(
+        required=False,
+        label="Google Drive Link (Optional)",
+        help_text="Paste a public Google Drive link for the note file (PDF, PPT, etc.).",
+        widget=forms.URLInput(attrs={'placeholder': 'https://drive.google.com/file/d/...'}),
+        validators=[validate_drive_link],
+    )
+
     class Meta:
         model = Note
-        fields = ['title', 'content', 'subject', 'file']
+        fields = ['title', 'content', 'subject', 'drive_link']
         widgets = {'content': forms.Textarea(attrs={'rows': 5})}
 
     def __init__(self, teacher=None, *args, **kwargs):

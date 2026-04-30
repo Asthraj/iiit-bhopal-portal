@@ -5,15 +5,21 @@
   <div class="page-header flex-between">
     <div>
       <h1 class="page-title">{{ note.title }}</h1>
-      <p class="page-subtitle"><span class="badge badge-subject">{{ note.subject.name }}</span> &nbsp; by {{ note.teacher.get_full_name|default:note.teacher.username }} &nbsp; · &nbsp; {{ note.created_at|date:"M d, Y" }}</p>
+      <p class="page-subtitle">
+        <span class="badge badge-subject">{{ note.subject.name }}</span>
+        &nbsp; by {{ note.teacher.get_full_name|default:note.teacher.username }}
+        &nbsp;·&nbsp; {{ note.created_at|date:"M d, Y" }}
+      </p>
     </div>
-    {% if note.file %}<a href="{{ note.file.url }}" target="_blank" class="btn btn-secondary">📎 Download File</a>{% endif %}
+    {% if note.drive_link %}
+    <a href="{{ note.drive_link }}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">📎 Open File</a>
+    {% endif %}
   </div>
   <div class="card">
     {% if note.content %}
     <div style="line-height:1.8;color:var(--ink-light);white-space:pre-wrap;">{{ note.content }}</div>
     {% else %}
-    <div class="empty-state">No text content. Download the attached file above.</div>
+    <div class="empty-state">No text content. Open the attached file above.</div>
     {% endif %}
   </div>
   <div class="mt-2"><a href="{% url 'note_list' %}" class="btn btn-outline">← Back to Notes</a></div>

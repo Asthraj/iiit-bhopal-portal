@@ -2,7 +2,7 @@
 {% block title %}Notes{% endblock %}
 {% block content %}
 <div class="page-header flex-between">
-  <div><h1 class="page-title">Notes</h1><p class="page-subtitle">Study materials & resources</p></div>
+  <div><h1 class="page-title">Notes</h1><p class="page-subtitle">Study materials &amp; resources</p></div>
   {% if profile.is_teacher %}<a href="{% url 'note_create' %}" class="btn btn-secondary">+ Upload Note</a>{% endif %}
 </div>
 <div class="grid-3">
@@ -14,7 +14,7 @@
   {% if not profile.is_teacher %}<div class="text-muted text-small">by {{ n.teacher.get_full_name|default:n.teacher.username }}</div>{% endif %}
   <div class="flex-gap mt-2">
     <a href="{% url 'note_detail' n.pk %}" class="btn btn-sm btn-outline">View</a>
-    {% if n.file %}<a href="{{ n.file.url }}" target="_blank" class="btn btn-sm btn-secondary">📎 Download</a>{% endif %}
+    {% if n.drive_link %}<a href="{{ n.drive_link }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-secondary">📎 Open File</a>{% endif %}
   </div>
 </div>
 {% empty %}

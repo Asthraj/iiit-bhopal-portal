@@ -9,9 +9,21 @@ from .forms import RegisterForm, AssignmentForm, SubmissionForm, GradeForm, Note
 
 
 def home(request):
-    if request.user.is_authenticated:
-        return redirect('dashboard')
-    return redirect('login')
+    """Public landing page — shows all teacher notes without requiring login."""
+    notes = Note.objects.select_related('subject', 'teacher').order_by('-created_at')
+    subjects = Subject.objects.order_by('branch', 'name')
+    branch_filter = request.GET.get('branch', '')
+    subject_filter = request.GET.get('subject', '')
+    if branch_filter:
+        notes = notes.filter(subject__branch=branch_filter)
+    if subject_filter:
+        notes = notes.filter(subject__id=subject_filter)
+    return render(request, 'home.html', {
+        'notes': notes,
+        'subjects': subjects,
+        'branch_filter': branch_filter,
+        'subject_filter': subject_filter,
+    })
 
 
 def register_view(request):
@@ -46,7 +58,7 @@ def login_view(request):
 
 def logout_view(request):
     logout(request)
-    return redirect('login')
+    return redirect('home')
 
 
 @login_required
@@ -131,7 +143,7 @@ def assignment_create(request):
         messages.error(request, "Only teachers can create assignments.")
         return redirect('assignment_list')
     if request.method == 'POST':
-        form = AssignmentForm(teacher=request.user, data=request.POST, files=request.FILES)
+        form = AssignmentForm(teacher=request.user, data=request.POST)
         if form.is_valid():
             assignment = form.save(commit=False)
             assignment.teacher = request.user
@@ -171,7 +183,7 @@ def submit_assignment(request, pk):
         messages.warning(request, "You have already submitted this assignment.")
         return redirect('assignment_detail', pk=pk)
     if request.method == 'POST':
-        form = SubmissionForm(request.POST, request.FILES)
+        form = SubmissionForm(request.POST)
         if form.is_valid():
             sub = form.save(commit=False)
             sub.assignment = assignment
@@ -223,7 +235,7 @@ def note_create(request):
         messages.error(request, "Only teachers can upload notes.")
         return redirect('note_list')
     if request.method == 'POST':
-        form = NoteForm(teacher=request.user, data=request.POST, files=request.FILES)
+        form = NoteForm(teacher=request.user, data=request.POST)
         if form.is_valid():
             note = form.save(commit=False)
             note.teacher = request.user
