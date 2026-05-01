@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}Submit Assignment{% endblock %}
+{% block content %}
+<div style="max-width:560px;margin:0 auto;">
+  <div class="page-header">
+    <h1 class="page-title">Submit Assignment</h1>
+    <p class="page-subtitle">{{ assignment.title }} · Due {{ assignment.due_date|date:"M d, Y H:i" }}</p>
+  </div>
+  <div class="card">
+    <div class="alert alert-info" style="font-size:0.85rem;margin-bottom:1.25rem;">
+      📤 <strong>How to submit:</strong>
+      <ol style="margin-top:0.5rem;padding-left:1.2rem;line-height:1.8;">
+        <li>Upload your file to <a href="https://drive.google.com" target="_blank">Google Drive</a></li>
+        <li>Right-click the file → <strong>Share</strong></li>
+        <li>Set access to <strong>"Anyone with the link"</strong></li>
+        <li>Click <strong>Copy link</strong> and paste it below</li>
+      </ol>
+    </div>
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-group">
+        <label>Google Drive Link</label>
+        {{ form.drive_link }}
+        <small class="text-muted">{{ form.drive_link.help_text }}</small>
+        {% if form.drive_link.errors %}<small style="color:red">{{ form.drive_link.errors.0 }}</small>{% endif %}
+      </div>
+      <div class="form-group"><label>Notes (Optional)</label>{{ form.remarks }}</div>
+      <div class="flex-gap">
+        <button type="submit" class="btn btn-success">Submit Assignment</button>
+        <a href="{% url 'assignment_detail' assignment.pk %}" class="btn btn-outline">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

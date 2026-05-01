@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% block title %}{{ assignment.title }}{% endblock %}
+{% block content %}
+<div class="page-header flex-between">
+  <div>
+    <h1 class="page-title">{{ assignment.title }}</h1>
+    <p class="page-subtitle">
+      <span class="badge badge-subject">{{ assignment.subject.name }}</span>
+      &nbsp; Due: {{ assignment.due_date|date:"M d, Y H:i" }}
+      &nbsp; Max Marks: {{ assignment.max_marks }}
+    </p>
+  </div>
+  {% if not profile.is_teacher and not my_submission %}
+  <a href="{% url 'submit_assignment' assignment.pk %}" class="btn btn-primary">Submit Assignment</a>
+  {% endif %}
+</div>
+
+<div class="grid-2 mb-2">
+  <div class="card">
+    <div class="card-header"><h3 class="card-title">Description</h3></div>
+    <p style="line-height:1.7;color:var(--ink-light);">{{ assignment.description }}</p>
+    {% if assignment.drive_link %}
+    <div class="mt-2">
+      <a href="{{ assignment.drive_link }}" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm">📎 Open Reference File</a>
+    </div>
+    {% endif %}
+  </div>
+
+  {% if not profile.is_teacher and my_submission %}
+  <div class="card">
+    <div class="card-header"><h3 class="card-title">My Submission</h3></div>
+    <p class="text-muted">Submitted: {{ my_submission.submitted_at|date:"M d, Y H:i" }}</p>
+    {% if my_submission.drive_link %}
+    <div class="mt-1">
+      <a href="{{ my_submission.drive_link }}" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm">📎 View My File</a>
+    </div>
+    {% endif %}
+    {% if my_submission.remarks %}<p class="mt-1"><strong>Note:</strong> {{ my_submission.remarks }}</p>{% endif %}
+    <div class="mt-2">
+      {% if my_submission.grade %}
+      <div style="background:var(--warm);border-radius:8px;padding:1rem;">
+        <div class="flex-gap">
+          <span class="badge badge-graded">Grade: {{ my_submission.grade }}</span>
+          <span class="badge badge-graded">{{ my_submission.marks_obtained }}/{{ assignment.max_marks }}</span>
+        </div>
+        {% if my_submission.remarks %}<p class="mt-1 text-small">Teacher's feedback: {{ my_submission.remarks }}</p>{% endif %}
+      </div>
+      {% else %}<span class="badge badge-pending">Awaiting Grade</span>{% endif %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+{% if profile.is_teacher and submissions %}
+<div class="card">
+  <div class="card-header"><h3 class="card-title">Submissions ({{ submissions.count }})</h3></div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Student</th><th>Submitted</th><th>File</th><th>Grade</th><th>Marks</th><th>Action</th></tr></thead>
+      <tbody>
+      {% for s in submissions %}
+      <tr>
+        <td><strong>{{ s.student.get_full_name|default:s.student.username }}</strong></td>
+        <td class="text-small text-muted">{{ s.submitted_at|date:"M d, Y H:i" }}</td>
+        <td>{% if s.drive_link %}<a href="{{ s.drive_link }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline">📎 Open</a>{% endif %}</td>
+        <td>{% if s.grade %}<span class="badge badge-graded">{{ s.grade }}</span>{% else %}<span class="badge badge-pending">—</span>{% endif %}</td>
+        <td>{% if s.marks_obtained %}{{ s.marks_obtained }}/{{ assignment.max_marks }}{% else %}—{% endif %}</td>
+        <td><a href="{% url 'grade_submission' s.pk %}" class="btn btn-sm btn-secondary">{% if s.grade %}Re-grade{% else %}Grade{% endif %}</a></td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% elif profile.is_teacher %}
+<div class="card"><div class="empty-state"><div class="empty-icon">📭</div>No submissions yet.</div></div>
+{% endif %}
+{% endblock %}

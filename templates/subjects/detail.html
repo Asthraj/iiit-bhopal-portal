@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}{{ subject.name }}{% endblock %}
+{% block content %}
+<div class="page-header flex-between">
+  <div>
+    <h1 class="page-title">{{ subject.name }}</h1>
+    <p class="page-subtitle">Teacher: {{ subject.teacher.get_full_name|default:subject.teacher.username }} · {{ subject.students.count }} students</p>
+  </div>
+  {% if profile.is_teacher and profile.user == subject.teacher %}
+  <div class="flex-gap">
+    <a href="{% url 'assignment_create' %}" class="btn btn-primary">+ Assignment</a>
+    <a href="{% url 'note_create' %}" class="btn btn-secondary">+ Note</a>
+    <a href="{% url 'subject_edit' subject.pk %}" class="btn btn-outline">✏️ Edit Subject</a>
+  </div>
+  {% endif %}
+</div>
+<div class="grid-2">
+  <div class="card">
+    <div class="card-header"><h3 class="card-title">Assignments ({{ assignments.count }})</h3></div>
+    {% for a in assignments %}
+    <div style="padding:0.75rem 0;border-bottom:1px solid var(--border);" class="flex-between">
+      <div>
+        <a href="{% url 'assignment_detail' a.pk %}" style="font-weight:500;color:var(--ink);">{{ a.title }}</a>
+        <div class="text-muted text-small mt-1">Due {{ a.due_date|date:"M d, Y" }} · Max {{ a.max_marks }} marks</div>
+      </div>
+    </div>
+    {% empty %}<div class="empty-state">No assignments yet</div>{% endfor %}
+  </div>
+  <div class="card">
+    <div class="card-header"><h3 class="card-title">Notes ({{ notes.count }})</h3></div>
+    {% for n in notes %}
+    <div style="padding:0.75rem 0;border-bottom:1px solid var(--border);">
+      <a href="{% url 'note_detail' n.pk %}" style="font-weight:500;color:var(--ink);">{{ n.title }}</a>
+      <div class="text-muted text-small mt-1">{{ n.created_at|date:"M d, Y" }}</div>
+    </div>
+    {% empty %}<div class="empty-state">No notes yet</div>{% endfor %}
+  </div>
+</div>
+{% endblock %}

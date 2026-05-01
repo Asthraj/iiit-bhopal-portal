@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div style="max-width:640px;margin:0 auto;">
+  <div class="page-header"><h1 class="page-title">{{ title }}</h1></div>
+  <div class="card">
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-row">
+        <div class="form-group"><label>Title</label>{{ form.title }}{% if form.title.errors %}<small style="color:red">{{ form.title.errors.0 }}</small>{% endif %}</div>
+        <div class="form-group"><label>Subject</label>{{ form.subject }}</div>
+      </div>
+      <div class="form-group"><label>Description</label>{{ form.description }}</div>
+      <div class="form-row">
+        <div class="form-group"><label>Due Date</label>{{ form.due_date }}</div>
+        <div class="form-group"><label>Max Marks</label>{{ form.max_marks }}</div>
+      </div>
+      <div class="form-group">
+        <label>Google Drive Link (Optional)</label>
+        {{ form.drive_link }}
+        <small class="text-muted">{{ form.drive_link.help_text }}</small>
+        {% if form.drive_link.errors %}<small style="color:red">{{ form.drive_link.errors.0 }}</small>{% endif %}
+      </div>
+      <div class="alert alert-info" style="font-size:0.82rem;">
+        💡 <strong>To share from Google Drive:</strong> Upload → Share → "Anyone with the link" → Copy → Paste above.
+      </div>
+      <div class="flex-gap">
+        <button type="submit" class="btn btn-primary">Create Assignment</button>
+        <a href="{% url 'assignment_list' %}" class="btn btn-outline">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

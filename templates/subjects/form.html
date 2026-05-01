@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }} — IIIT Bhopal Portal{% endblock %}
+{% block content %}
+<div style="max-width:640px;margin:0 auto;">
+  <div class="page-header"><h1 class="page-title">{{ title }}</h1></div>
+  <div class="card">
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-row">
+        <div class="form-group">
+          <label>Subject Name</label>{{ form.name }}
+        </div>
+        <div class="form-group">
+          <label>Branch</label>{{ form.branch }}
+        </div>
+      </div>
+
+      <!-- Quick-fill buttons per branch -->
+      <div class="form-group">
+        <label style="margin-bottom:0.75rem;">Quick-fill from IIIT Bhopal curriculum</label>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.75rem;">
+          <button type="button" class="btn btn-sm btn-outline" onclick="fillSubjects('CS')">💻 CS Subjects</button>
+          <button type="button" class="btn btn-sm btn-outline" onclick="fillSubjects('IT')">🌐 IT Subjects</button>
+          <button type="button" class="btn btn-sm btn-outline" onclick="fillSubjects('ECE')">📡 ECE Subjects</button>
+        </div>
+        <div id="subject-suggestions" style="display:none;border:1.5px solid var(--border);border-radius:8px;padding:0.75rem;background:var(--warm);max-height:200px;overflow-y:auto;">
+          <p style="font-size:0.8rem;color:var(--ink-light);margin-bottom:0.5rem;">Click a subject to fill the name field:</p>
+          <div id="suggestions-list" style="display:flex;flex-wrap:wrap;gap:0.4rem;"></div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Enroll Students</label>
+        <div style="max-height:200px;overflow-y:auto;border:1.5px solid var(--border);border-radius:8px;padding:0.75rem;">{{ form.students }}</div>
+      </div>
+      <div class="flex-gap">
+        <button type="submit" class="btn btn-primary">Save Subject</button>
+        <a href="{% url 'subject_list' %}" class="btn btn-outline">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+const BRANCH_SUBJECTS = {
+  CS: ["Discrete Mathematics","Data Structures & Algorithms","Theory of Computation","Compiler Design","Computer Architecture & Organization","Operating Systems","Database Management Systems","Artificial Intelligence","Computer Networks","Algorithm Design & Analysis","Distributed Systems","Computer Graphics","Machine Learning","Natural Language Processing","Software Engineering"],
+  IT: ["Programming for Problem Solving","Data Structures","Web Technologies","Database Management Systems","Computer Networks","Operating Systems","Software Engineering","Cloud Computing","IoT & Embedded Systems","Machine Learning","Cyber Security","Mobile Application Development","Big Data Analytics","Human-Computer Interaction","Information Security"],
+  ECE: ["Circuit Theory","Electronic Devices & Circuits","Signals & Systems","Digital Electronics","Analog Communication","Digital Communication","VLSI Design","Microprocessors & Interfacing","Wireless Communication","Embedded Systems","RF & Microwave Engineering","Digital Signal Processing","Control Systems","Optical Communication","Antenna & Wave Propagation"]
+};
+
+function fillSubjects(branch) {
+  const list = document.getElementById('suggestions-list');
+  const box = document.getElementById('subject-suggestions');
+  list.innerHTML = '';
+  BRANCH_SUBJECTS[branch].forEach(s => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.textContent = s;
+    btn.style.cssText = 'background:#fff;border:1px solid #d5daea;border-radius:6px;padding:0.25rem 0.6rem;font-size:0.8rem;cursor:pointer;';
+    btn.onmouseover = () => btn.style.background = '#eef1fa';
+    btn.onmouseout  = () => btn.style.background = '#fff';
+    btn.onclick = () => {
+      document.getElementById('id_name').value = s;
+      // also set the branch select
+      const branchSelect = document.getElementById('id_branch');
+      if (branchSelect) branchSelect.value = branch;
+    };
+    list.appendChild(btn);
+  });
+  box.style.display = 'block';
+}
+</script>
+{% endblock %}

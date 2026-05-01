@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% block title %}Edit Subject — {{ subject.name }}{% endblock %}
+{% block content %}
+<div style="max-width:700px;margin:2rem auto;">
+  <div class="page-header">
+    <h1 class="page-title">✏️ Edit Subject</h1>
+    <p class="page-subtitle">Update details and manage students for <strong>{{ subject.name }}</strong></p>
+  </div>
+
+  <div class="card">
+    <form method="post">
+      {% csrf_token %}
+
+      <!-- Subject Name -->
+      <div class="form-group">
+        <label>Subject Name</label>
+        {{ form.name }}
+        {% if form.name.errors %}<small style="color:red">{{ form.name.errors.0 }}</small>{% endif %}
+      </div>
+
+      <!-- Branch -->
+      <div class="form-group">
+        <label>Course / Branch</label>
+        {{ form.branch }}
+      </div>
+
+      <!-- Students -->
+      <div class="form-group">
+        <label>Enrolled Students</label>
+
+        <!-- Class Filter Buttons -->
+        {% if all_students %}
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem;flex-wrap:wrap;">
+          <span style="font-size:0.85rem;color:var(--ink-light);font-weight:500;">🎓 Filter by Class:</span>
+          <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+            <button type="button" class="branch-filter-btn active" data-branch="all"
+              style="padding:0.3rem 0.75rem;border-radius:20px;border:1.5px solid var(--accent2);background:var(--accent2);color:#fff;font-size:0.8rem;cursor:pointer;font-weight:500;transition:all 0.2s;">
+              All
+            </button>
+            {% for val, label in branch_choices %}
+            <button type="button" class="branch-filter-btn" data-branch="{{ val }}"
+              style="padding:0.3rem 0.75rem;border-radius:20px;border:1.5px solid var(--border);background:transparent;color:var(--ink);font-size:0.8rem;cursor:pointer;font-weight:500;transition:all 0.2s;">
+              {{ label }}
+            </button>
+            {% endfor %}
+          </div>
+        </div>
+        <div style="font-size:0.8rem;color:var(--ink-light);margin-bottom:0.5rem;">
+          Showing <span id="visible-count">{{ all_students|length }}</span> student(s)
+        </div>
+        {% endif %}
+
+        <div style="border:1.5px solid var(--border);border-radius:8px;padding:1rem;background:var(--warm);max-height:320px;overflow-y:auto;">
+          {% if all_students %}
+            {% for p in all_students %}
+            <label class="student-row" data-branch="{{ p.branch }}"
+              style="display:flex;align-items:center;gap:0.75rem;padding:0.5rem 0.25rem;border-bottom:1px solid var(--border);cursor:pointer;text-transform:none;letter-spacing:0;font-weight:400;font-size:0.9rem;color:var(--ink);">
+              <input type="checkbox" name="students" value="{{ p.user.pk }}"
+                {% if p.user in subject.students.all %}checked{% endif %}
+                style="width:16px;height:16px;accent-color:var(--accent2);">
+              <span>
+                <strong>{{ p.user.get_full_name|default:p.user.username }}</strong>
+                <span style="color:var(--ink-light);font-size:0.8rem;"> — {{ p.get_branch_display }}</span>
+              </span>
+            </label>
+            {% endfor %}
+            <p id="no-match-msg" style="display:none;color:var(--ink-light);font-size:0.875rem;text-align:center;padding:1rem 0;">
+              No students found for this class.
+            </p>
+          {% else %}
+            <p style="color:var(--ink-light);font-size:0.875rem;text-align:center;padding:1rem 0;">
+              No verified students yet.
+            </p>
+          {% endif %}
+        </div>
+        <small style="color:var(--ink-light);font-size:0.8rem;margin-top:0.4rem;display:block;">
+          ✅ Only verified students are shown. Tick to enroll, untick to remove.
+        </small>
+      </div>
+
+      <div style="display:flex;gap:0.75rem;margin-top:1.5rem;">
+        <button type="submit" class="btn btn-primary">💾 Save Changes</button>
+        <a href="{% url 'subject_detail' subject.pk %}" class="btn btn-outline">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+(function () {
+  var filterBtns = document.querySelectorAll('.branch-filter-btn');
+  var studentRows = document.querySelectorAll('.student-row');
+  var visibleCount = document.getElementById('visible-count');
+  var noMatchMsg = document.getElementById('no-match-msg');
+
+  function applyFilter(branch) {
+    var count = 0;
+    studentRows.forEach(function (row) {
+      var show = branch === 'all' || row.getAttribute('data-branch') === branch;
+      row.style.display = show ? 'flex' : 'none';
+      if (show) count++;
+    });
+    if (visibleCount) visibleCount.textContent = count;
+    if (noMatchMsg) noMatchMsg.style.display = count === 0 ? 'block' : 'none';
+  }
+
+  filterBtns.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      filterBtns.forEach(function (b) {
+        b.style.background = 'transparent';
+        b.style.color = 'var(--ink)';
+        b.style.borderColor = 'var(--border)';
+        b.classList.remove('active');
+      });
+      btn.style.background = 'var(--accent2)';
+      btn.style.color = '#fff';
+      btn.style.borderColor = 'var(--accent2)';
+      btn.classList.add('active');
+      applyFilter(btn.getAttribute('data-branch'));
+    });
+  });
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: eduportal
+    runtime: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn school_portal.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --timeout 120"
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true          # Render auto-generates a secure random key
+      - key: DEBUG
+        value: "False"
+      - key: PYTHON_VERSION
+        value: "3.11.0"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: eduportal-db
+          property: connectionString
+
+databases:
+  - name: eduportal-db
+    databaseName: eduportal
+    user: eduportal_user
+    plan: free

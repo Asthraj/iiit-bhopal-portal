@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}Notes{% endblock %}
+{% block content %}
+<div class="page-header flex-between">
+  <div><h1 class="page-title">Notes</h1><p class="page-subtitle">Study materials &amp; resources</p></div>
+  {% if profile.is_teacher %}<a href="{% url 'note_create' %}" class="btn btn-secondary">+ Upload Note</a>{% endif %}
+</div>
+<div class="grid-3">
+{% for n in notes %}
+<div class="card" style="transition:transform 0.15s,box-shadow 0.15s;" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,0.12)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+  <div style="width:40px;height:40px;background:var(--accent2);border-radius:10px;display:flex;align-items:center;justify-content:center;color:white;font-size:1.2rem;margin-bottom:1rem;">📝</div>
+  <h3 style="font-family:'DM Serif Display',serif;font-size:1.1rem;margin-bottom:0.5rem;">{{ n.title }}</h3>
+  <div class="text-muted text-small">{{ n.subject.name }} · {{ n.created_at|date:"M d, Y" }}</div>
+  {% if not profile.is_teacher %}<div class="text-muted text-small">by {{ n.teacher.get_full_name|default:n.teacher.username }}</div>{% endif %}
+  <div class="flex-gap mt-2">
+    <a href="{% url 'note_detail' n.pk %}" class="btn btn-sm btn-outline">View</a>
+    {% if n.drive_link %}<a href="{{ n.drive_link }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-secondary">📎 Open File</a>{% endif %}
+  </div>
+</div>
+{% empty %}
+<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">📝</div>
+{% if profile.is_teacher %}No notes yet. <a href="{% url 'note_create' %}">Upload one</a>{% else %}No notes available.{% endif %}</div>
+{% endfor %}
+</div>
+{% endblock %}
